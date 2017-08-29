@@ -6,7 +6,7 @@ import os
 import signal
 import time
 #import notify2
-import gi
+import gi # Test
 gi.require_version("Notify", "0.7")
 gi.require_version("AppIndicator3", "0.1")
 gi.require_version("Gtk", "3.0")
@@ -22,6 +22,7 @@ ScriptPath = "/home/tassadar/Downloads/ScreenRotator-master/"                   
 NotificationIconPath = "/home/tassadar/Downloads/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
 KeyboardDeviceID = ""                                                                       # This will be used in later functions to disable the hardware keyboard when in tablet mode
 TouchScreenDeviceID = ""                                                                    # This will be used to flip the screem inputs whe in tablet mode.
+MonitorDeviceName = "eDP-1"                                                                 # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
 
 Notify.init("Screen Rotiation")
 # Use GdkPixbuf to create the proper image type
@@ -59,6 +60,11 @@ def build_menu():
     item_rotate = Gtk.MenuItem('Rotate')
     item_rotate.connect('activate', rotate_screen)
     menu.append(item_rotate)
+
+    #Portrait
+    item_Portrait = Gtk.MenuItem('Portrait')
+    item_Portrait.connect('activate', Portrait)
+    menu.append(item_Portrait)
 
     #flip
     item_flip = Gtk.MenuItem('Flip')
@@ -107,6 +113,23 @@ def flip_screen(source):
         direction ="normal"
     call(["xrandr", "-o", direction])
     orientation = direction
+
+def Portrait(source):
+    global orientation
+    # Check what our current state is
+    if orientation == "normal":
+         # Change summary and body
+        notifications.update("Screen Rotation Enchanced", "Switching to Protrait")
+        # Show again
+        notifications.show()  
+        #direction = "inverted"
+        #now adjust the tranform matrix for the touch screen to account for the inverted screen orientation 
+        #call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' -1 0 1 0 -1 1 0 0 1"])
+    else:
+        notifications.update("Screen Rotation Enchanced", "The Device is already in portrait")
+        # Show again
+        notifications.show()
+        #enable the keyboard and mouse inputs
 
 def tablet_mode(source):
     global orientation

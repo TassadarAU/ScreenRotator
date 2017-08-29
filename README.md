@@ -1,5 +1,5 @@
 # ScreenRotator
-Small applet for rotating the screen on Unity Desktop
+Small applet for rotating the screen on Unity Desktop forked from https://github.com/frecel/ScreenRotator
 
 ![Updated Icon](https://raw.githubusercontent.com/frecel/ScreenRotator/master/Screenshot%20from%202016-07-05%2013-03-54.png)
 
@@ -13,3 +13,5 @@ system tray change the path to the icon in line 13 of ScreenRotator.py to an
 absolute path.
 
 The icon is from Google's Material Desing icon pack (https://materialdesignicons.com/)
+
+This version includes tablet mode, portrait and lanscape modes.
