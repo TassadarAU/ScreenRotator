@@ -113,12 +113,14 @@ def flip_screen(source):
         direction ="normal"
     call(["xrandr", "-o", direction])
     orientation = direction
+    #The method above inverts the touch screen calibration  
 
 def Portrait(source):
     global orientation
     # Check what our current state is
     if orientation == "normal":
-         # Change summary and body
+        # Change summary and body
+        call("xrandr --output LVDS1 --rotate right")
         notifications.update("Screen Rotation Enchanced", "Switching to Protrait")
         # Show again
         notifications.show()  
@@ -170,7 +172,7 @@ def notebook_mode(source):
         notifications.show()
         direction ="normal"
         #enable the keyboard and mouse inputs inputs
-        call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' 1 0 0 0 1 0 0 0 1"])
+        #call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' 1 0 0 0 1 0 0 0 1"])
     call(["xrandr", "-o", direction])
     orientation = direction
 
