@@ -122,8 +122,14 @@ def flip_screen(source):
     global orientation
     if orientation == "normal":
         direction = "inverted"
+        notifications.update("Screen Rotation Enchanced", "Inverting screen orientation")
+        # Show again
+        notifications.show()
     elif orientation == "inverted":
         direction ="normal"
+        notifications.update("Screen Rotation Enchanced", "Restoring screen orientation")
+        # Show again
+        notifications.show()
     call(["xrandr", "-o", direction])
     orientation = direction
     #The method above inverts the touch screen calibration  
@@ -154,19 +160,17 @@ def tablet_mode(source):
         notifications.update("Screen Rotation Enchanced", "Switching to tablet mode")
         # Show again
         notifications.show()
-        call(["ls", "-l"])   
-        #direction = "inverted"
-        #now adjust the tranform matrix for the touch screen to account for the inverted screen orientation 
-        #call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' -1 0 1 0 -1 1 0 0 1"])
-    
+        #call(["ls", "-l"])   
+        direction = "inverted"
         #disable the keyboard and mouse inputs inputs
+
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode")
         # Show again
         notifications.show()
-        #direction ="normal"
+        direction ="normal"
         #enable the keyboard and mouse inputs
-   # call(["xrandr", "-o", direction])
+        call(["xrandr", "-o", direction])
    # orientation = direction
 
 # 
@@ -178,14 +182,11 @@ def notebook_mode(source):
         notifications.update("Screen Rotation Enchanced", "The Device is already in notebook mode")
         # Show again
         notifications.show()
-        call(["ls", "-l"])   
         #disable the keyboard and mouse inputs inputs
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")
         notifications.show()
         direction ="normal"
-        #enable the keyboard and mouse inputs inputs
-        #call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' 1 0 0 0 1 0 0 0 1"])
     call(["xrandr", "-o", direction])
     orientation = direction
 
