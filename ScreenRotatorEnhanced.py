@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+######################################################################################################################################
+# Maintainer - Domenic.
+# 
+# Requirements - gnome based interface 
+#
+#
+# Originaly forked from ScreenRotator http://
+# Modifications made ahve been to support devices such as the HP x360 convertable systems. This allows the system to be inverted or 
+# put into tent mode and flip the screen which requires the touch screen cor-ordinate system to also be inverted. Tablet mode was also
+# added to disable the hardware keyboard to prevent unwanted keypress whilist holding the unit.
+#
+######################################################################################################################################
 # additional modules sudo apt-get install libnotify-bin http://www.devdungeon.com/content/desktop-notifications-python-libnotify
 #sudo apt install python3-notify2
 #test
@@ -17,25 +29,26 @@ from gi.repository import AppIndicator3 as AppIndicator
 from gi.repository import Notify, GdkPixbuf # notification libary import
 
 APPINDICATOR_ID = "screenrotator"
-orientation = "normal"                                                                      # The Default startip state is assumed to be in laptop configuration
-ScriptPath = "/home/tassadar/Downloads/ScreenRotator-master/"                               # Required to constrict some commands
-NotificationIconPath = "/home/tassadar/Downloads/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
-KeyboardDeviceID = ""                                                                       # This will be used in later functions to disable the hardware keyboard when in tablet mode
-TouchScreenDeviceID = ""                                                                    # This will be used to flip the screem inputs whe in tablet mode.
-MonitorDeviceName = "eDP-1"                                                                 # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
+orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
+ScriptPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/"                               # Required to constrict some commands
+NotificationIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
+KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
+TouchScreenDeviceID = ""                                                                             # This will be used to flip the screem inputs whe in tablet mode.
+MonitorDeviceName = "eDP-1"                                                                          # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
+IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"
 
 Notify.init("Screen Rotiation")
 # Use GdkPixbuf to create the proper image type
-notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started") # Create the Notification Object and set it with the start up values ready for display
-image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                                # Intialise the image object to be used bu the notification system
+notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started")         # Create the Notification Object and set it with the start up values ready for display
+image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                                        # Intialise the image object to be used bu the notification system
 # Use the GdkPixbuf image
-notifications.set_icon_from_pixbuf(image)                                                   # Set the icon Image for the notifications popup   
-notifications.set_image_from_pixbuf(image)                                                  # Set the image to be used by the notification popup
-notifications.show()                                                                        # Display the first notification stating that the application has started
+notifications.set_icon_from_pixbuf(image)                                                           # Set the icon Image for the notifications popup   
+notifications.set_image_from_pixbuf(image)                                                          # Set the image to be used by the notification popup
+notifications.show()                                                                                # Display the first notification stating that the application has started
 
 
 def main():
-    indicator = AppIndicator.Indicator.new(APPINDICATOR_ID, os.path.abspath('/usr/bin/icon.svg'), AppIndicator.IndicatorCategory.SYSTEM_SERVICES)
+    indicator = AppIndicator.Indicator.new(APPINDICATOR_ID, os.path.abspath(IndicatorIconPath), AppIndicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
     indicator.set_menu(build_menu())
     Gtk.main()
