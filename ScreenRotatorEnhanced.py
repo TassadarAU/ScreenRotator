@@ -10,23 +10,29 @@
 # put into tent mode and flip the screen which requires the touch screen cor-ordinate system to also be inverted. Tablet mode was also
 # added to disable the hardware keyboard to prevent unwanted keypress whilist holding the unit.
 #
+# https://askubuntu.com/questions/160945/is-there-a-way-to-disable-a-laptops-internal-keyboard
+#
 ######################################################################################################################################
 # additional modules sudo apt-get install libnotify-bin http://www.devdungeon.com/content/desktop-notifications-python-libnotify
 #sudo apt install python3-notify2
-#test
+# sudo apt install iio-sensor-proxy inotify-tools https://linuxappfinder.com/blog/auto_screen_rotation_in_ubuntu
+
+
+################################ Module inport section #######################################################################
 import os
 import signal
 import time
 #import notify2
-import gi # Test
+import gi 
 gi.require_version("Notify", "0.7")
 gi.require_version("AppIndicator3", "0.1")
 gi.require_version("Gtk", "3.0")
-from gi.repository import Notify
-from subprocess import call
-from gi.repository import Gtk
-from gi.repository import AppIndicator3 as AppIndicator
-from gi.repository import Notify, GdkPixbuf # notification libary import
+from gi.repository import Notify                                                # Notification libary
+from subprocess import call                                                     # Subprocess libary for making system calls
+from gi.repository import Gtk                                                   # Gtk libary for GUI shell objects
+from gi.repository import AppIndicator3 as AppIndicator                         # Indicator libary for task bar
+from gi.repository import Notify, GdkPixbuf                                     # notification libary import
+###############################################################################################################################
 
 APPINDICATOR_ID = "screenrotator"
 orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
@@ -35,16 +41,15 @@ NotificationIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/n
 KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
 TouchScreenDeviceID = ""                                                                             # This will be used to flip the screem inputs whe in tablet mode.
 MonitorDeviceName = "eDP-1"                                                                          # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
-IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"
-
-Notify.init("Screen Rotiation")
+IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
+Notify.init("Screen Rotiation")                                                                      # Initialise the notification object with the applications title, This will appear in bold on the notification toatsy
 # Use GdkPixbuf to create the proper image type
-notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started")         # Create the Notification Object and set it with the start up values ready for display
-image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                                        # Intialise the image object to be used bu the notification system
+notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started")          # Create the Notification Object and set it with the start up values ready for display
+image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                                         # Intialise the image object to be used bu the notification system
 # Use the GdkPixbuf image
-notifications.set_icon_from_pixbuf(image)                                                           # Set the icon Image for the notifications popup   
-notifications.set_image_from_pixbuf(image)                                                          # Set the image to be used by the notification popup
-notifications.show()                                                                                # Display the first notification stating that the application has started
+notifications.set_icon_from_pixbuf(image)                                                            # Set the icon Image for the notifications popup   
+notifications.set_image_from_pixbuf(image)                                                           # Set the image to be used by the notification popup
+notifications.show()                                                                                 # Display the first notification stating that the application has started
 
 
 def main():
@@ -163,6 +168,7 @@ def tablet_mode(source):
         #call(["ls", "-l"])   
         direction = "inverted"
         #disable the keyboard and mouse inputs inputs
+        #call([xinput float 13])
 
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode")
@@ -171,6 +177,7 @@ def tablet_mode(source):
         direction ="normal"
         #enable the keyboard and mouse inputs
         call(["xrandr", "-o", direction])
+        call(["xinput", reattach, 13, 3])
    # orientation = direction
 
 # 
@@ -187,6 +194,7 @@ def notebook_mode(source):
         notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")
         notifications.show()
         direction ="normal"
+        #xinput reattach 10 3                                                   #re-enable the keyboard
     call(["xrandr", "-o", direction])
     orientation = direction
 
