@@ -19,11 +19,13 @@
 
 
 ################################ Module inport section #######################################################################
-import os
-import signal
-import time
+import os                                                                       #
+import signal                                                                   #
+import time                                                                     #
+import subprocess                                                               # Libary used to call the commands from the operating system
 #import notify2
-import gi 
+import gi                                                                       #
+import re                                                                       #
 gi.require_version("Notify", "0.7")
 gi.require_version("AppIndicator3", "0.1")
 gi.require_version("Gtk", "3.0")
@@ -32,13 +34,15 @@ from subprocess import call                                                     
 from gi.repository import Gtk                                                   # Gtk libary for GUI shell objects
 from gi.repository import AppIndicator3 as AppIndicator                         # Indicator libary for task bar
 from gi.repository import Notify, GdkPixbuf                                     # notification libary import
+from string import digits                                                       #
 ###############################################################################################################################
 
 APPINDICATOR_ID = "screenrotator"
 orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
 ScriptPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/"                               # Required to constrict some commands
 NotificationIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
-KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
+KeyboardDeviceID = 0                                                                                 # This will be used in later functions to disable the hardware keyboard when in tablet mode
+KeyboardSlaveID  = 0                                                                                 # Slave id for the onboard keyboard
 TouchScreenDeviceID = ""                                                                             # This will be used to flip the screem inputs whe in tablet mode.
 MonitorDeviceName = "eDP-1"                                                                          # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
 IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
@@ -50,16 +54,21 @@ image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                    
 notifications.set_icon_from_pixbuf(image)                                                            # Set the icon Image for the notifications popup   
 notifications.set_image_from_pixbuf(image)                                                           # Set the image to be used by the notification popup
 notifications.show()                                                                                 # Display the first notification stating that the application has started
-
+#grab the keyboard device numbers in preperation
+cmdpipe = subprocess.Popen("xinput --list | grep 'AT Translated' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+result = cmdpipe.stdout.readline()                                                                   # Result from the xinput command filtered to show the current keyboard
+KeyboardDeviceID = int(re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0]))    # Regex filtering to cut the numeric value for the ID
+KeyboardSlaveID = int(result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0])               # Regex filtering to cut the numeric value for the slave id
+print KeyboardDeviceID                                                                               # Debug
+print KeyboardSlaveID                                                                                # Debug
 
 def main():
     indicator = AppIndicator.Indicator.new(APPINDICATOR_ID, os.path.abspath(IndicatorIconPath), AppIndicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
     indicator.set_menu(build_menu())
     Gtk.main()
-    #notification = Notify.Notification.new("Screen Rotator Started")
-    #notification.show()
-
+    
+       
 def build_menu():
     menu = Gtk.Menu()
     #brightness
