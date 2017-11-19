@@ -11,13 +11,14 @@
 # added to disable the hardware keyboard to prevent unwanted keypress whilist holding the unit.
 #
 # https://askubuntu.com/questions/160945/is-there-a-way-to-disable-a-laptops-internal-keyboard
-#
+# https://unix.stackexchange.com/questions/229876/xinput-calibration-and-options
+# https://houseofneruson.wordpress.com/2016/05/03/howto-enable-auto-screen-rotation-in-the-gnome-shell-for-2-in-1-convertible-laptops-solus-1-1/
 ######################################################################################################################################
 # additional modules sudo apt-get install libnotify-bin http://www.devdungeon.com/content/desktop-notifications-python-libnotify
 #sudo apt install python3-notify2
 # sudo apt install iio-sensor-proxy inotify-tools https://linuxappfinder.com/blog/auto_screen_rotation_in_ubuntu
-
-
+# https://andym3.wordpress.com/2012/05/27/fixing-natural-scrolling-in-ubuntu-12-04/
+# touch screen is fine, the mouse aka and stylus need the x and y axis switvhed in tablet mode
 ################################ Module inport section #######################################################################
 import os                                                                       #
 import signal                                                                   #
@@ -35,18 +36,25 @@ from gi.repository import Gtk                                                   
 from gi.repository import AppIndicator3 as AppIndicator                         # Indicator libary for task bar
 from gi.repository import Notify, GdkPixbuf                                     # notification libary import
 from string import digits                                                       #
+
 ###############################################################################################################################
 
 APPINDICATOR_ID = "screenrotator"
 orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
 ScriptPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/"                               # Required to constrict some commands
 NotificationIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
-KeyboardDeviceID = 0                                                                                 # This will be used in later functions to disable the hardware keyboard when in tablet mode
-KeyboardSlaveID  = 0                                                                                 # Slave id for the onboard keyboard
+KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
+KeyboardSlaveID  = ""                                                                                # Slave id for the onboard keyboard
 TouchScreenDeviceID = ""                                                                             # This will be used to flip the screem inputs whe in tablet mode.
 MonitorDeviceName = "eDP-1"                                                                          # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
 IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
 Notify.init("Screen Rotiation")                                                                      # Initialise the notification object with the applications title, This will appear in bold on the notification toatsy
+#set the tranformation matrix variables
+normalMatrix = ""                                                               
+invertMatrix = ""
+leftMatrix = ""
+rightMatrix =""
+
 # Use GdkPixbuf to create the proper image type
 notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started")          # Create the Notification Object and set it with the start up values ready for display
 image = GdkPixbuf.Pixbuf.new_from_file(NotificationIconPath)                                         # Intialise the image object to be used bu the notification system
@@ -57,11 +65,19 @@ notifications.show()                                                            
 #grab the keyboard device numbers in preperation
 cmdpipe = subprocess.Popen("xinput --list | grep 'AT Translated' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 result = cmdpipe.stdout.readline()                                                                   # Result from the xinput command filtered to show the current keyboard
-KeyboardDeviceID = int(re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0]))    # Regex filtering to cut the numeric value for the ID
-KeyboardSlaveID = int(result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0])               # Regex filtering to cut the numeric value for the slave id
-print KeyboardDeviceID                                                                               # Debug
-print KeyboardSlaveID                                                                                # Debug
+KeyboardDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])         # Regex filtering to cut the numeric value for the ID
+KeyboardSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Regex filtering to cut the numeric value for the slave id
+#Grab the touch pad device numbers
+cmdpipe = subprocess.Popen("xinput --list | grep 'TouchPad' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+result = cmdpipe.stdout.readline()
+TouchScreenDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])
 
+
+
+
+print "Keyboard ID       - " + KeyboardDeviceID                                                                               # Debug
+print "Keyboard Slave id - " + KeyboardSlaveID                                                                                # Debug
+print "Touch ID          - " + TouchScreenDeviceID                                                                            # Debug
 def main():
     indicator = AppIndicator.Indicator.new(APPINDICATOR_ID, os.path.abspath(IndicatorIconPath), AppIndicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
@@ -146,6 +162,7 @@ def flip_screen(source):
         notifications.show()
     call(["xrandr", "-o", direction])
     orientation = direction
+    call(["xinput", "set-prop", 142 , direction])
     #The method above inverts the touch screen calibration  
 
 def Portrait(source):
@@ -171,13 +188,11 @@ def tablet_mode(source):
     # Check what our current state is
     if orientation == "normal":
          # Change summary and body
-        notifications.update("Screen Rotation Enchanced", "Switching to tablet mode")
-        # Show again
-        notifications.show()
-        #call(["ls", "-l"])   
+        notifications.update("Screen Rotation Enchanced", "Switching to tablet mode")      # Set Notificationcontent
+        notifications.show()                                                               # Show again
         direction = "inverted"
         #disable the keyboard and mouse inputs inputs
-        #call([xinput float 13])
+        #call(["xinput", "float", KeyboardDeviceID])
 
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode")
@@ -186,7 +201,6 @@ def tablet_mode(source):
         direction ="normal"
         #enable the keyboard and mouse inputs
         call(["xrandr", "-o", direction])
-        call(["xinput", reattach, 13, 3])
    # orientation = direction
 
 # 
@@ -204,6 +218,7 @@ def notebook_mode(source):
         notifications.show()
         direction ="normal"
         #xinput reattach 10 3                                                   #re-enable the keyboard
+        call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         #reattach the keyboard
     call(["xrandr", "-o", direction])
     orientation = direction
 
