@@ -50,10 +50,13 @@ MonitorDeviceName = "eDP-1"                                                     
 IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
 Notify.init("Screen Rotiation")                                                                      # Initialise the notification object with the applications title, This will appear in bold on the notification toatsy
 #set the tranformation matrix variables
-normalMatrix = ""                                                               
-invertMatrix = ""
-leftMatrix = ""
-rightMatrix =""
+########## Transforms #####################
+stringInvertedTransform = "-1 0 1 0 -1 1 0 0 1"
+stringNormalTransform = "1 0 0 0 1 0 0 0 1"
+stringLeftTransform = "0 -1 1 1 0 0 0 0 1"
+stringRightTransform = "0 1 0 -1 0 1 0 0 1"
+
+
 
 # Use GdkPixbuf to create the proper image type
 notifications = Notify.Notification.new("Screen Rotation Enchanced", "Application Started")          # Create the Notification Object and set it with the start up values ready for display
@@ -84,7 +87,6 @@ def main():
     indicator.set_menu(build_menu())
     Gtk.main()
     
-       
 def build_menu():
     menu = Gtk.Menu()
     #brightness
@@ -229,9 +231,15 @@ def increase_brightness(source):
 def decrease_brightness(source):
     call(["xbacklight", "-dec", "20"])
 
+def hmiTransform (orientation):
+    #use the matrix to set the transform
+    print "test " + stringInvertedTransform
+
+
 if __name__ == "__main__":
     #make sure the screen is in normal orientation when the script starts
     call(["xrandr", "-o", orientation])
     #keyboard interrupt handler
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     main()
+    
