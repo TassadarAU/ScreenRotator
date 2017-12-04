@@ -233,20 +233,21 @@ def tablet_mode(source):
          # Change summary and body
         notifications.update("Screen Rotation Enchanced", "Switching to tablet mode")      # Set Notificationcontent
         notifications.show()                                                               # Show again
-        direction = "inverted"
-        TargetCordinateMatrix = stringInvertedTransform
+        direction = "inverted"                                                             # Set rotation direction to be inverted ready for execution at the end of the function          
+        TargetCordinateMatrix = stringInvertedTransform                                    # Set the transformation set to be inverted ready for execution
         #disable the keyboard and mouse inputs inputs
-        call(["xinput", "float", KeyboardDeviceID])
+        call(["xinput", "float", KeyboardDeviceID])                                        # Detach the keybvoard
+        call(["xinput", "float", TouchPadDeviceID])                                        # Detach the Touch Pad
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode, reverting")
-        TargetCordinateMatrix = stringNormalTransform
-        # Show again
-    #print "targeted Matrix = " + TargetCordinateMatrix
+        TargetCordinateMatrix = stringNormalTransform                                      # Set Transformation Matrix to the normal           
+        direction = "normal"                                                               # Set the rotation direction to be altered to normal
+    #print "targeted Matrix = " + TargetCordinateMatrix                                    # Debug
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    #print "this will be the command - " +command  # DEBUG
-    os.system(command)                            # Execute the command       
-    call(["xrandr", "-o", direction])
-    orientation = direction
+    #print "this will be the command - " +command                                          # DEBUG
+    os.system(command)                                                                     # Execute the command       
+    call(["xrandr", "-o", direction])                                                      # Execute the screen rotation command
+    orientation = direction                                                                # Set the global screen position to equal the adjustment
 
 
 # 
@@ -259,27 +260,29 @@ def notebook_mode(source):
          # Change summary and body
         notifications.update("Screen Rotation Enchanced", "The Device is already in notebook mode")
         # Show again
-        notifications.show()
+        notifications.show()                                                               # Show notification
         #enablethe keyboard and mouse inputs inputs
     elif orientation == "inverted":
-        notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")
-        notifications.show()
-        direction ="normal"
-        #xinput reattach 10 3                                                    #re-enable the keyboard
-        call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         #reattach the keyboard
-    call(["xrandr", "-o", direction])
-    print "targeted Matrix = " + TargetCordinateMatrix
-    orientation = direction
-    #execute cordinate matrix set back to nromal mode here
+        notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")    # Set the notification
+        notifications.show()                                                               # Show notification
+        direction ="normal"                                                                # Set the global screen position to equal the adjustment
+    #####################################  Reattache devices ###################################################
+    call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         # Reattach the keyboard
+    call(["xinput", "reattach", TouchPadDeviceID, TouchPadSlaveID])         # Reattach the keyboard
+    call(["xrandr", "-o", direction])                                       # Ensure Screen orientation is normal    
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command  # DEBUG
-    os.system(command)
+    print "this will be the command - " +command                            # DEBUG
+    os.system(command)                                                      # Execute the transform matrix command
+    #############################################################################################################
+    print "targeted Matrix = " + TargetCordinateMatrix                      # Debug
+    orientation = direction                                                 # Set the global variable to be the reset screen orientation
+                             
 
 def increase_brightness(source):
-    call(["xbacklight", "-inc", "20"])
+    call(["xbacklight", "-inc", "20"])                                      # Increase the screen brightness using xbacklight
 
 def decrease_brightness(source):
-    call(["xbacklight", "-dec", "20"])
+    call(["xbacklight", "-dec", "20"])                                      # Decrease the screen brightness using xbacklight
 
 def hmiTransform (orientation):
     #use the matrix to set the transform
