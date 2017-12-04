@@ -16,8 +16,9 @@
 # https://github.com/tegan-lamoureux/Rotate-Spectre/blob/master/rotate.py
 # #####################################################################################################################################
 # additional modules sudo apt-get install libnotify-bin http://www.devdungeon.com/content/desktop-notifications-python-libnotify
-# sudo apt install python3-notify2
-# sudo apt install iio-sensor-proxy inotify-tools https://linuxappfinder.com/blog/auto_screen_rotation_in_ubuntu
+# sudo apt-get install python3-notify2
+# sudo apt-get install iio-sensor-proxy inotify-tools https://linuxappfinder.com/blog/auto_screen_rotation_in_ubuntu
+# sudo apt-get install xbacklight
 # https://andym3.wordpress.com/2012/05/27/fixing-natural-scrolling-in-ubuntu-12-04/
 # touch screen is fine, the mouse aka and stylus need the x and y axis switvhed in tablet mode
 ################################ Module inport section #######################################################################
@@ -89,11 +90,9 @@ TouchScreenDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).sp
 TouchPadSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Strip the device salve id by removing anything betweem the brackets
 # Grab the Digitiser/Pen device Numbers     
 cmdpipe = subprocess.Popen("xinput --list | grep 'Pen' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-result = cmdpipe.stdout.readline()                                                                   # 
-DigitiserDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])        #
-DigitiserSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                   #
-
-
+result = cmdpipe.stdout.readline()                                                                   # Execute the command and store the output 
+DigitiserDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])        # Strip out the device ID number is regex looking for a numeric charcters after the an =
+DigitiserSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                   # Strip out the slave ID looking for numeric characters between brackets
 
 ######################## DEBUG ###########################
 print "Keyboard ID       - "     + KeyboardDeviceID                                                                               # Debug
@@ -194,31 +193,37 @@ def flip_screen(source):
     call(["xrandr", "-o", direction])
     print "targeted Matrix = " + TargetCordinateMatrix
     orientation = direction
-
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
     print "this will be the command - " +command  # DEBUG
     os.system(command)                                                                                                 # Execute the Pen/Digitiser inversion command
     #natrual Scrolling next here
 
-    #touchscreen as well?
+    #touchscreen as well? work out if its necessary
 
 def Portrait(source):
     global orientation
+    global TargetCordinateMatrix
+    command = ""
     # Check what our current state is
-    if orientation == "normal":
+    if  orientation == "normal":
         # Change summary and body
-        call("xrandr --output LVDS1 --rotate right")
+        direction = "right"
         notifications.update("Screen Rotation Enchanced", "Switching to Protrait")
-        # Show again
-        notifications.show()  
-        #direction = "inverted"
-        #now adjust the tranform matrix for the touch screen to account for the inverted screen orientation 
-        #call([ "xinput set-prop 'Your Touchscreens Name' --type=float 'Coordinate Transformation Matrix' -1 0 1 0 -1 1 0 0 1"])
+        TargetCordinateMatrix = stringRightTransform
     else:
-        notifications.update("Screen Rotation Enchanced", "The Device is already in portrait")
+        direction ="normal"
+        notifications.update("Screen Rotation Enchanced", "Swotching back to normal from portait")
         # Show again
         notifications.show()
         #enable the keyboard and mouse inputs
+        TargetCordinateMatrix = stringNormalTransform
+    # Show again
+    notifications.show()  
+    command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
+    print "this will be the command - " +command  # DEBUG
+    os.system(command)                            # Execute the command       
+    call(["xrandr", "-o", direction])
+    orientation = direction
 
 def tablet_mode(source):
     global orientation
@@ -229,37 +234,46 @@ def tablet_mode(source):
         notifications.update("Screen Rotation Enchanced", "Switching to tablet mode")      # Set Notificationcontent
         notifications.show()                                                               # Show again
         direction = "inverted"
+        TargetCordinateMatrix = stringInvertedTransform
         #disable the keyboard and mouse inputs inputs
-        #call(["xinput", "float", KeyboardDeviceID])
-        TargetCordinateMatrix = ""
+        call(["xinput", "float", KeyboardDeviceID])
     elif orientation == "inverted":
-        notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode")
+        notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode, reverting")
+        TargetCordinateMatrix = stringNormalTransform
         # Show again
-    print "targeted Matrix = " + TargetCordinateMatrix
+    #print "targeted Matrix = " + TargetCordinateMatrix
+    command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
+    #print "this will be the command - " +command  # DEBUG
+    os.system(command)                            # Execute the command       
+    call(["xrandr", "-o", direction])
     orientation = direction
+
 
 # 
 def notebook_mode(source):
     global orientation
     global TargetCordinateMatrix
+    TargetCordinateMatrix = stringNormalTransform
     # Check what our current state is
     if orientation == "normal":
          # Change summary and body
         notifications.update("Screen Rotation Enchanced", "The Device is already in notebook mode")
         # Show again
         notifications.show()
-        #disable the keyboard and mouse inputs inputs
+        #enablethe keyboard and mouse inputs inputs
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")
         notifications.show()
         direction ="normal"
-        #xinput reattach 10 3                                                   #re-enable the keyboard
-        #call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         #reattach the keyboard
+        #xinput reattach 10 3                                                    #re-enable the keyboard
+        call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         #reattach the keyboard
     call(["xrandr", "-o", direction])
     print "targeted Matrix = " + TargetCordinateMatrix
     orientation = direction
     #execute cordinate matrix set back to nromal mode here
-    
+    command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
+    print "this will be the command - " +command  # DEBUG
+    os.system(command)
 
 def increase_brightness(source):
     call(["xbacklight", "-inc", "20"])
