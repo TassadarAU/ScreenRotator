@@ -56,6 +56,7 @@ DigitiserSlaveID = ""
 MonitorDeviceName = "ELAN0732:00"                                                                    # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
 IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
 Notify.init("Screen Rotiation")                                                                      # Initialise the notification object with the applications title, This will appear in bold on the notification toatsy
+applicationMode = "Manual"
 ###############################################################################################################################
 #set the tranformation matrix variables
 ########## Transforms #####################
@@ -166,13 +167,37 @@ def build_menu():
     return menu
 
 def rotate_screen(source):
-    global orientation
+    global orientation                          # Global variable for orientation
+    global TargetCordinateMatrix                # Blogal variable for the Cordinate Matrix used for screen calbibration
+    command = ""                                # Null out the command string just incase
     if orientation == "normal":
         direction = "left"
+        TargetCordinateMatrix = stringLeftTransform
+        notifications.update("Screen Rotation Enchanced", "Rotating screen left")
     elif orientation == "left":
-        direction ="normal"
-    call(["xrandr", "-o", direction])
-    orientation = direction
+        direction = "inverted"
+        TargetCordinateMatrix = stringInvertedTransform
+        notifications.update("Screen Rotation Enchanced", "Rotating screen inverted")
+    elif orientation == "inverted":
+        direction = "right"
+        TargetCordinateMatrix = stringRightTransform
+        notifications.update("Screen Rotation Enchanced", "Rotating screen right")
+    elif orientation == "right":
+        direction = "normal"
+        TargetCordinateMatrix = stringNormalTransform
+        notifications.update("Screen Rotation Enchanced", "Rotating screen normal")
+    
+    notifications.show()                                                    # Show notification based on which orientation is to be displayed
+    call(["xrandr", "-o", direction])                                       # Call the screen rotation
+    command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
+    print "this will be the command - " +command                            # DEBUG
+    os.system(command)                                                      # Execute the screen transformation
+    orientation = direction                                                 # Update the orientation global tracking variable to equal the new adjusted orientation
+
+def automaticMode(source):
+    global applicationMode
+    notifications.update("Screen Rotation Enchanced", "Rotating screen normal")
+    notifications.show()
 
 def flip_screen(source):
     global orientation
@@ -181,53 +206,48 @@ def flip_screen(source):
     if orientation == "normal":
         direction = "inverted"
         notifications.update("Screen Rotation Enchanced", "Inverting screen orientation")
-        # Show again
-        notifications.show()
         TargetCordinateMatrix = stringInvertedTransform
     elif orientation == "inverted":
         direction ="normal"
-        notifications.update("Screen Rotation Enchanced", "Restoring screen orientation")
-        # Show again
-        notifications.show()
-        TargetCordinateMatrix = stringNormalTransform
-    call(["xrandr", "-o", direction])
-    print "targeted Matrix = " + TargetCordinateMatrix
+        notifications.update("Screen Rotation Enchanced", "Restoring screen orientation")                              # Update the notification string
+        TargetCordinateMatrix = stringNormalTransform                                                                  # Set the transformation matrix variable to normal
+    notifications.show()                                                                                               # Show updated notification pannel 
+    call(["xrandr", "-o", direction])                                                                                  # Execute screen rotation to the desired orientation
+    print "targeted Matrix = " + TargetCordinateMatrix                                                                 # Debug
     orientation = direction
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
     print "this will be the command - " +command  # DEBUG
     os.system(command)                                                                                                 # Execute the Pen/Digitiser inversion command
-    #natrual Scrolling next here
-
+    #natrual Scrolling next here if required
     #touchscreen as well? work out if its necessary
 
 def Portrait(source):
-    global orientation
-    global TargetCordinateMatrix
-    command = ""
+    global orientation                          # Global variable for orientation
+    global TargetCordinateMatrix                # Blogal variable for the Cordinate Matrix used for screen calbibration
+    command = ""                                # Null out the command string just incase
     # Check what our current state is
     if  orientation == "normal":
         # Change summary and body
         direction = "right"
         notifications.update("Screen Rotation Enchanced", "Switching to Protrait")
-        TargetCordinateMatrix = stringRightTransform
+        TargetCordinateMatrix = stringRightTransform                                       # Set targeted tranform variable to be right portrait tranformation to match the screen rotation
     else:
-        direction ="normal"
-        notifications.update("Screen Rotation Enchanced", "Swotching back to normal from portait")
-        # Show again
-        notifications.show()
+        direction ="normal"                                                                # Set the screen direction variable to normal                                  
+        notifications.update("Screen Rotation Enchanced", "Switching back to normal from portait")
         #enable the keyboard and mouse inputs
-        TargetCordinateMatrix = stringNormalTransform
+        TargetCordinateMatrix = stringNormalTransform                                      # Set tranformation variable to normal screen orientation
     # Show again
     notifications.show()  
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command  # DEBUG
-    os.system(command)                            # Execute the command       
-    call(["xrandr", "-o", direction])
-    orientation = direction
+    print "this will be the command - " +command                                           # DEBUG
+    os.system(command)                                                                     # Execute the command       
+    call(["xrandr", "-o", direction])                                                      # Execute the screen reorientation
+    orientation = direction                                                                # Set the global variable with the current adjusted screen orientation value     
 
 def tablet_mode(source):
-    global orientation
-    global TargetCordinateMatrix
+    global orientation                          # Global variable for orientation
+    global TargetCordinateMatrix                # Blogal variable for the Cordinate Matrix used for screen calbibration
+    command = ""                                # Null out the command string just incase
     # Check what our current state is
     if orientation == "normal":
          # Change summary and body
@@ -252,41 +272,40 @@ def tablet_mode(source):
 
 # 
 def notebook_mode(source):
-    global orientation
-    global TargetCordinateMatrix
+    global orientation                          # Global variable for orientation
+    global TargetCordinateMatrix                # Blogal variable for the Cordinate Matrix used for screen calbibration
+    command = ""                                # Null out the command string just incase
     TargetCordinateMatrix = stringNormalTransform
     # Check what our current state is
     if orientation == "normal":
          # Change summary and body
         notifications.update("Screen Rotation Enchanced", "The Device is already in notebook mode")
-        # Show again
-        notifications.show()                                                               # Show notification
-        #enablethe keyboard and mouse inputs inputs
+        #enable the keyboard and mouse inputs inputs
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "Switching to notebook mode")    # Set the notification
-        notifications.show()                                                               # Show notification
         direction ="normal"                                                                # Set the global screen position to equal the adjustment
-    #####################################  Reattache devices ###################################################
-    call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])         # Reattach the keyboard
-    call(["xinput", "reattach", TouchPadDeviceID, TouchPadSlaveID])         # Reattach the keyboard
-    call(["xrandr", "-o", direction])                                       # Ensure Screen orientation is normal    
+    #####################################  Reattach devices ###################################################
+    notifications.show()                                                                   # Show notification
+    call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])                        # Reattach the keyboard
+    call(["xinput", "reattach", TouchPadDeviceID, TouchPadSlaveID])                        # Reattach the keyboard
+    call(["xrandr", "-o", direction])                                                      # Ensure Screen orientation is normal    
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command                            # DEBUG
-    os.system(command)                                                      # Execute the transform matrix command
+    print "this will be the command - " +command                                           # DEBUG
+    os.system(command)                                                                     # Execute the transform matrix command
     #############################################################################################################
-    print "targeted Matrix = " + TargetCordinateMatrix                      # Debug
-    orientation = direction                                                 # Set the global variable to be the reset screen orientation
+    print "targeted Matrix = " + TargetCordinateMatrix                                     # Debug
+    orientation = direction                                                                # Set the global variable to be the reset screen orientation
                              
 
 def increase_brightness(source):
-    call(["xbacklight", "-inc", "20"])                                      # Increase the screen brightness using xbacklight
+    call(["xbacklight", "-inc", "20"])                                                     # Increase the screen brightness using xbacklight
 
 def decrease_brightness(source):
-    call(["xbacklight", "-dec", "20"])                                      # Decrease the screen brightness using xbacklight
+    call(["xbacklight", "-dec", "20"])                                                     # Decrease the screen brightness using xbacklight
 
-def hmiTransform (orientation):
-    #use the matrix to set the transform
-    print "test " + stringInvertedTransform
+#def hmiTransform (orientation):
+#    #use the matrix to set the transform
+#    print "test " + stringInvertedTransform                                               # Debug
 
 
 if __name__ == "__main__":
