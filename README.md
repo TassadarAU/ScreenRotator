@@ -6,15 +6,12 @@ Small applet for rotating the screen on Unity Desktop forked from https://github
 ScreenRotator requires python3-gi to work. You can install it by running:
 ```
 sudo apt install python3-gi
-```
-
-The following libaries are also required:
-...
 sudo apt-get install python3-notify2
 sudo apt-get install iio-sensor-proxy inotify-tools
 sudo apt-get install xbacklight
 sudo apt-get install libnotify-bin
-...
+
+```
 
 Installation Instructions:
 1. Copy the script to you /usr/sbin/ Directory
