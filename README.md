@@ -1,7 +1,7 @@
 # ScreenRotator
 Small applet for rotating the screen on Unity Desktop forked from https://github.com/frecel/ScreenRotator
 
-![Updated Icon](https://raw.githubusercontent.com/frecel/ScreenRotator/master/Screenshot%20from%202016-07-05%2013-03-54.png)
+![Updated Icon](https://github.com/TassadarAU/ScreenRotator/blob/Enhanced/ScreenCapture.jpg)
 
 ScreenRotator requires python3-gi to work. You can install it by running:
 ```
