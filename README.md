@@ -14,8 +14,8 @@ sudo apt-get install libnotify-bin
 ```
 
 Installation Instructions:
-1. Copy the script to you /usr/sbin/ Directory
-2. Copy the icon file to the same location
+1. Copy the script to your /usr/sbin/ Directory (this part is optional you can run the script from anywhere you choose)
+2. Create the folder /usr/share/ScreenRotationIndicator Copy the icon and notification graphics files to that location (this part is required         unless you alter the graphics variables to your desired location) 
 3. Add an auto start item in your system to execute the following: python ScreenRotatorEnhanced.py
 4. Edit the script and change the device if of your screen. use xinput --list to Identify it. All other hardware items such as Pens, touchpad and     keybaords are automaticly identified by the script
 
