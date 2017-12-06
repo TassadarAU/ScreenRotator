@@ -8,7 +8,7 @@
 # Originaly forked from ScreenRotator http://
 # Modifications made ahve been to support devices such as the HP x360 convertable systems. This allows the system to be inverted or 
 # put into tent mode and flip the screen which requires the touch screen cor-ordinate system to also be inverted. Tablet mode was also
-# added to disable the hardware keyboard to prevent unwanted keypress whilist holding the unit.
+# added to disable the hardware keyboard and mouse to prevent unwanted keypress whilist holding the unit.
 #
 # https://askubuntu.com/questions/160945/is-there-a-way-to-disable-a-laptops-internal-keyboard
 # https://unix.stackexchange.com/questions/229876/xinput-calibration-and-options
@@ -38,23 +38,21 @@ from gi.repository import Gtk                                                   
 from gi.repository import AppIndicator3 as AppIndicator                         # Indicator libary for task bar
 from gi.repository import Notify, GdkPixbuf                                     # notification libary import
 from string import digits                                                       # String libary used for rege functions and string manipulation
-
+from time import sleep                                                          # Required to add easy pause into while loop that samples from acceleromoeter
 ###############################################################################################################################
-
-APPINDICATOR_ID = "screenrotator"
+APPINDICATOR_ID = "screenrotator"                                                                    # App ID       
 orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
-ScriptPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/"                               # Required to constrict some commands
-NotificationIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/notifications.png"    # require to configure the applications notification icon
+NotificationIconPath = "/usr/share/ScreenRotationIndicator/notifications.png"                        # require to configure the applications notification icon
 KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
 KeyboardSlaveID  = ""                                                                                # Slave id for the onboard keyboard
 TouchScreenDeviceID = ""                                                                             # This will be used to flip the screem inputs whe in tablet mode.
 TouchScreenSlaveID = ""                                                                              # This will beused 
 TouchPadDeviceID = ""                                                                                # This will be used to disable the touchpad in tablet mode
 TouchPadSlaveID = ""                                                                                 # This will be used to disable the touchpad in tablet mode
-DigitiserDeviceID = ""
-DigitiserSlaveID = ""
+DigitiserDeviceID = ""                                                                               # Pen/Stylus/Digitiser Device ID
+DigitiserSlaveID = ""                                                                                # Pen/Stylus/Digitiser Slave ID
 MonitorDeviceName = "ELAN0732:00"                                                                    # This is the screens name as per the output of xrandr -q this will be used to try alter the screen state
-IndicatorIconPath = "/home/tassadar/Documents/Projects/ScreenRotator-master/icon.svg"                # Indicator icon location path, This will be programaticly set later
+IndicatorIconPath = "/usr/share/ScreenRotationIndicator/icon.svg"                                    # Indicator icon location path, This will be programaticly set later
 Notify.init("Screen Rotiation")                                                                      # Initialise the notification object with the applications title, This will appear in bold on the notification toatsy
 applicationMode = "Manual"
 ###############################################################################################################################
@@ -159,12 +157,46 @@ def build_menu():
     seperator = Gtk.SeparatorMenuItem()
     menu.append(seperator)
 
+
+    #Automatic application mode menu item
+    item_auto = Gtk.MenuItem('Automatic Rotation')
+    item_auto.connect('activate', auto_screen)
+    menu.append(item_auto)
+
+    #Automatic application mode menu item
+    item_man = Gtk.MenuItem('Manual Rotation')
+    item_man.connect('activate', man_screen)
+    menu.append(item_man)
+
     #quit
     item_quit = Gtk.MenuItem('Quit')
     item_quit.connect('activate', quit)
     menu.append(item_quit)
     menu.show_all()
+    
+    #seperator
+    seperator = Gtk.SeparatorMenuItem()
+    menu.append(seperator)
+
+    
     return menu
+
+def man_screen(source):
+    global applicationMode
+    mode = "manualReset"
+    applicationMode = mode
+    print "Manual mode invoked " + applicationMode
+
+def auto_screen(source):
+    global applicationMode
+    mode = 'auto"'
+    applicationMode = mode
+
+    while applicationMode != "man":
+        print "This is where the automatic code is "  +applicationMode# Debug
+        pass
+        sleep(1)
+    
 
 def rotate_screen(source):
     global orientation                          # Global variable for orientation
