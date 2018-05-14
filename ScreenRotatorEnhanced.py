@@ -40,7 +40,8 @@ from gi.repository import Notify, GdkPixbuf                                     
 from string import digits                                                       # String libary used for rege functions and string manipulation
 from time import sleep                                                          # Required to add easy pause into while loop that samples from acceleromoeter
 ###############################################################################################################################
-APPINDICATOR_ID = "screenrotator"                                                                    # App ID       
+
+APPINDICATOR_ID = "screenrotator"
 orientation = "normal"                                                                               # The Default startip state is assumed to be in laptop configuration
 NotificationIconPath = "/usr/share/ScreenRotationIndicator/notifications.png"                        # require to configure the applications notification icon
 KeyboardDeviceID = ""                                                                                # This will be used in later functions to disable the hardware keyboard when in tablet mode
