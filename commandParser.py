@@ -3,7 +3,7 @@ from string import digits
 import re
 from glob import glob       #rgex required for acceleroteter interface
 from os import path as op   #required for the accelerpometer interface
-import sys                  # required for accceleroteter portion
+import sys                  #required for accceleroteter portion
 cmdpipe = subprocess.Popen("xinput --list | grep 'AT Translated' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 #xinput --list | grep 'AT Translated' 
 result = cmdpipe.stdout.readline()
