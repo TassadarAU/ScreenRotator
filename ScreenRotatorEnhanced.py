@@ -30,7 +30,7 @@ import subprocess                                                               
 import gi                                                                       #
 import re                                                                       #
 gi.require_version("Notify", "0.7")                                             # Versioning checks for notify
-gi.require_version("AppIndicator3", "0.1")                                      # Versioning checks for Appinidicator for unity
+#gi.require_version("AppIndicator4", "0.1")                                      # Versioning checks for Appinidicator for unity
 gi.require_version("Gtk", "3.0")                                                # Versonioning checks GTK graphics libary 
 from gi.repository import Notify                                                # Notification libary
 from subprocess import call                                                     # Subprocess libary for making system calls
@@ -75,34 +75,39 @@ notifications.set_image_from_pixbuf(image)                                      
 notifications.show()                                                                                 # Display the first notification stating that the application has started
 # Grab the keyboard device numbers in preperation
 cmdpipe = subprocess.Popen("xinput --list | grep 'AT Translated' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-result = cmdpipe.stdout.readline()                                                                   # Result from the xinput command filtered to show the current keyboard
-KeyboardDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])         # Regex filtering to cut the numeric value for the ID
-KeyboardSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Regex filtering to cut the numeric value for the slave id
+result = cmdpipe.stdout.readline()  
+print (result)                                                                    # Result from the xinput command filtered to show the current keyboard
+if result and (not result.isspace()): 
+    KeyboardDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])         # Regex filtering to cut the numeric value for the ID
+    KeyboardSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Regex filtering to cut the numeric value for the slave id
 # Grab the touch pad device numbers
-cmdpipe = subprocess.Popen("xinput --list | grep 'TouchPad' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)  # Grab the touchpad in preperation for regex functions 
-result = cmdpipe.stdout.readline()                                                                   # Execute the above command to retreive the touchpad ID string                       
-TouchPadDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])         # Strip out the device ID from the returned String
-TouchPadSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # String the Slave ID from the original returned string 
+cmdpipe = subprocess.Popen("xinput --list | grep 'Synaptics' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)  # Grab the touchpad in preperation for regex functions 
+result = cmdpipe.stdout.readline()
+if result and (not result.isspace()):                                                                     # Execute the above command to retreive the touchpad ID string                       
+    TouchPadDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])         # Strip out the device ID from the returned String
+    TouchPadSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # String the Slave ID from the original returned string 
 # Grab the TouchScreen device Numbers
-cmdpipe = subprocess.Popen("xinput --list | grep 'ELAN0732:00' | grep -v 'Pen'  ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-result = cmdpipe.stdout.readline()                                                                   # Execute the above command and return the raw touch screen ID as the PEN/Stylus will have a similar ID the grep -v will remove the any line with PEN in the string
-TouchScreenDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])      # Strip the device ID from the returned string by removing anything before the = 
-TouchPadSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Strip the device salve id by removing anything betweem the brackets
+cmdpipe = subprocess.Popen("xinput --list | grep 'ELAN0732:00' | grep -v 'keyboard'  ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+result = cmdpipe.stdout.readline()
+if result and (not result.isspace()):                                                                     # Execute the above command and return the raw touch screen ID as the PEN/Stylus will have a similar ID the grep -v will remove the any line with PEN in the string
+    TouchScreenDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])      # Strip the device ID from the returned string by removing anything before the = 
+    TouchPadSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                    # Strip the device salve id by removing anything betweem the brackets
 # Grab the Digitiser/Pen device Numbers     
-cmdpipe = subprocess.Popen("xinput --list | grep 'Pen' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-result = cmdpipe.stdout.readline()                                                                   # Execute the command and store the output 
-DigitiserDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])        # Strip out the device ID number is regex looking for a numeric charcters after the an =
-DigitiserSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                   # Strip out the slave ID looking for numeric characters between brackets
+cmdpipe = subprocess.Popen("xinput --list | grep 'keyboard' | grep 'Stylus' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+result = cmdpipe.stdout.readline()
+if result and (not result.isspace()):                                                                     # Execute the command and store the output 
+    DigitiserDeviceID = re.sub("[^0-9]", "", result.join(result.split('=')[1:]).split(" ",1 )[0])        # Strip out the device ID number is regex looking for a numeric charcters after the an =
+    DigitiserSlaveID = result.join(result.split('=')[1:]).split("(")[1].rsplit(")")[0]                   # Strip out the slave ID looking for numeric characters between brackets
 
 ######################## DEBUG ###########################
-print "Keyboard ID       - "     + KeyboardDeviceID                                                                               # Debug
-print "Keyboard Slave id - "     + KeyboardSlaveID                                                                                # Debug
-print "Touch Pad ID      - "     + TouchPadDeviceID                                                                               # Debug
-print "Touch Pad Slave ID - "    + TouchPadSlaveID                                                                                # Debug
-print "Pen Device ID - "         + DigitiserDeviceID                                                                              # Debug 
-print "Pen Slave ID - "          + DigitiserSlaveID                                                                               # Debug
-print "Touch Screen - "          + TouchScreenDeviceID                                                                            # Debug
-print "touch Screen Slave ID - " + TouchPadSlaveID                                                                                # Debug
+print ("Keyboard ID       - "     + KeyboardDeviceID   )                                                                            # Debug
+print ("Keyboard Slave id - "     + KeyboardSlaveID  )                                                                              # Debug
+print ("Touch Pad ID      - "     + TouchPadDeviceID   )                                                                            # Debug
+print ("Touch Pad Slave ID - "    + TouchPadSlaveID )                                                                               # Debug
+print ("Pen Device ID - "         + DigitiserDeviceID )                                                                             # Debug 
+print ("Pen Slave ID - "          + DigitiserSlaveID  )                                                                             # Debug
+print ("Touch Screen - "          + TouchScreenDeviceID )                                                                           # Debug
+print ("touch Screen Slave ID - " + TouchPadSlaveID )                                                                               # Debug
 ######################## DEBUG ###########################
 
 def main():
@@ -182,21 +187,39 @@ def build_menu():
     
     return menu
 
+def ReadConfigFile(filename):
+    lineCount = 0
+    with open(filename) as f:
+        file_content = f.readlines()
+    return file_content
+
+def readConfigreturnAttribute():
+    print("test")
+    return value
+
+def writeConfig(attribute, value):
+    lineCount = 0
+    filename = os.path.join(os.path.dirname(__file__), 'autoRotation.config') 
+    lines = ReadConfigFile(filename)
+    for line in lines:
+            attributeFile = re.sub(r'[^a-zA-Z0-9--]', '', re.sub('\:.*$',"",line) )
+            if attributeFile == attribute:
+                lines[lineCount] = attribute +":" + value +"\n"
+            lineCount = lineCount + 1
+    f = open(filename, "w")
+    f.writelines(lines)
+    f.close()
+
 def man_screen(source):
     global applicationMode
-    mode = "manualReset"
-    applicationMode = mode
-    print "Manual mode invoked " + applicationMode
+    applicationMode = "manual"
+    writeConfig ("mode",applicationMode)
+    print ("Manual mode invoked " + applicationMode)
 
 def auto_screen(source):
     global applicationMode
-    mode = 'auto"'
-    applicationMode = mode
-
-    while applicationMode != "man":
-        print "This is where the automatic code is "  +applicationMode# Debug
-        pass
-        sleep(1)
+    applicationMode = 'auto'
+    writeConfig ("mode", applicationMode)
     
 
 def rotate_screen(source):
@@ -223,7 +246,7 @@ def rotate_screen(source):
     notifications.show()                                                    # Show notification based on which orientation is to be displayed
     call(["xrandr", "-o", direction])                                       # Call the screen rotation
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command                            # DEBUG
+    print ("this will be the command - " +command )                           # DEBUG
     os.system(command)                                                      # Execute the screen transformation
     orientation = direction                                                 # Update the orientation global tracking variable to equal the new adjusted orientation
 
@@ -246,11 +269,15 @@ def flip_screen(source):
         TargetCordinateMatrix = stringNormalTransform                                                                  # Set the transformation matrix variable to normal
     notifications.show()                                                                                               # Show updated notification pannel 
     call(["xrandr", "-o", direction])                                                                                  # Execute screen rotation to the desired orientation
-    print "targeted Matrix = " + TargetCordinateMatrix                                                                 # Debug
+    print ("targeted Matrix = " + TargetCordinateMatrix  )                                                               # Debug
     orientation = direction
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command  # DEBUG
+    print ("this will be the command - " +command ) # DEBUG
     os.system(command)                                                                                                 # Execute the Pen/Digitiser inversion command
+    command = "xinput set-prop " + TouchScreenDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix
+    print ("this will be the command - " +command ) # DEBUG
+    os.system(command)                                                                                                 # Execute the Pen/Digitiser inversion command
+    
     #natrual Scrolling next here if required
     #touchscreen as well? work out if its necessary
 
@@ -272,7 +299,7 @@ def Portrait(source):
     # Show again
     notifications.show()  
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command                                           # DEBUG
+    print ("this will be the command - " +command   )                                        # DEBUG
     os.system(command)                                                                     # Execute the command       
     call(["xrandr", "-o", direction])                                                      # Execute the screen reorientation
     orientation = direction                                                                # Set the global variable with the current adjusted screen orientation value     
@@ -289,16 +316,20 @@ def tablet_mode(source):
         direction = "inverted"                                                             # Set rotation direction to be inverted ready for execution at the end of the function          
         TargetCordinateMatrix = stringInvertedTransform                                    # Set the transformation set to be inverted ready for execution
         #disable the keyboard and mouse inputs inputs
-        call(["xinput", "float", KeyboardDeviceID])                                        # Detach the keybvoard
-        call(["xinput", "float", TouchPadDeviceID])                                        # Detach the Touch Pad
+        #call(["xinput", "float", KeyboardDeviceID])                                        # Detach the keybvoard
+        #call(["xinput", "float", TouchPadDeviceID])                                        # Detach the Touch Pad
     elif orientation == "inverted":
         notifications.update("Screen Rotation Enchanced", "The Device is already in tablet mode, reverting")
         TargetCordinateMatrix = stringNormalTransform                                      # Set Transformation Matrix to the normal           
         direction = "normal"                                                               # Set the rotation direction to be altered to normal
-    #print "targeted Matrix = " + TargetCordinateMatrix                                    # Debug
+    #print "(targeted Matrix = " + TargetCordinateMatrix  )                                  # Debug
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
     #print "this will be the command - " +command                                          # DEBUG
-    os.system(command)                                                                     # Execute the command       
+    os.system(command)                                                                     # Execute the command 
+    command = "xinput set-prop " + TouchScreenDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix
+    print ("this will be the command - " +command ) # DEBUG
+    os.system(command) 
+          
     call(["xrandr", "-o", direction])                                                      # Execute the screen rotation command
     orientation = direction                                                                # Set the global screen position to equal the adjustment
 
@@ -319,14 +350,14 @@ def notebook_mode(source):
         direction ="normal"                                                                # Set the global screen position to equal the adjustment
     #####################################  Reattach devices ###################################################
     notifications.show()                                                                   # Show notification
-    call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])                        # Reattach the keyboard
-    call(["xinput", "reattach", TouchPadDeviceID, TouchPadSlaveID])                        # Reattach the keyboard
+    #call(["xinput", "reattach", KeyboardDeviceID, KeyboardSlaveID])                        # Reattach the keyboard
+    #call(["xinput", "reattach", TouchPadDeviceID, TouchPadSlaveID])                        # Reattach the keyboard
     call(["xrandr", "-o", direction])                                                      # Ensure Screen orientation is normal    
     command = "xinput set-prop " + DigitiserDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix  #The method above inverts the Pen/Digitiser calibration
-    print "this will be the command - " +command                                           # DEBUG
+    print ("this will be the command - " +command    )                                       # DEBUG
     os.system(command)                                                                     # Execute the transform matrix command
     #############################################################################################################
-    print "targeted Matrix = " + TargetCordinateMatrix                                     # Debug
+    print ("targeted Matrix = " + TargetCordinateMatrix )                                    # Debug
     orientation = direction                                                                # Set the global variable to be the reset screen orientation
                              
 
