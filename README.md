@@ -1,9 +1,9 @@
 # ScreenRotator
 Small applet for rotating the screen for the linux Desktop forked from https://github.com/frecel/ScreenRotator
 
-![Updated Icon](https://github.com/TassadarAU/ScreenRotator/blob/Enhanced/ScreenCapture.jpg)
+![Updated Icon](https://github.com/TassadarAU/ScreenRotator/blob/Enhanced/ScreenCapture20.04.jpg)
 
-ScreenRotator requires python3-gi to work. You can install it by running:
+ScreenRotator has several dependencies. You can install it by running the following commands: 
 ```
 sudo apt install python3-gi
 sudo apt-get install python3-notify2
