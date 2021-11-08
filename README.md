@@ -31,7 +31,7 @@ Installation Instructions:
 
 Notes:
 I have done alot of recent upgrades and tweaking to this script. It is alot leaner and cleaner than before. Please feel free to use modify this software to your hearts content. 
-happt to have any feedback good and bad.
+happy to have any feedback good and bad.
 
 The icon is from Google's Material Desing icon pack (https://materialdesignicons.com/)
 
