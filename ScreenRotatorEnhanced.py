@@ -169,10 +169,10 @@ def auto_screen(source):
     NotificationToasty ("Screen Rotation Enchanced", "Auto mode set")
 
 def currentOrientation():
-        cmdpipe = subprocess.Popen("xrandr --query --verbose | grep 'primary' | cut -d ' ' -f 6", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        result = cmdpipe.stdout.readline()  
-        result = re.sub(r'[^a-zA-Z0-9--]', '', result)
-        return result
+    cmdpipe = subprocess.Popen("xrandr --query --verbose | grep 'primary' | cut -d ' ' -f 6", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    result = cmdpipe.stdout.readline()  
+    result = re.sub(r'[^a-zA-Z0-9--]', '', result)
+    return result
 
 def RotateScreen(TargetCordinateMatrix, direction):
     mode = readConfigreturnAttribute("mode")
