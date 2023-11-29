@@ -21,18 +21,25 @@ Files:
     * NotificationIconPath:image for notification toasty/popup
     * IndicatorIconPath: image for application tray icon
     * notifications:enabled - Supress pops and toasty, software runs does its thing doesn't bother you in any way. Other wise screen changes and mode changes have toasty notification
+* DeviceClass.py - 
+* ScreenRotatorutils.py  - 
 
 
 Installation Instructions:
 1. Copy the scripts and config files to your /usr/sbin/ Directory (this part is optional you can run the script from anywhere you choose)
 2. Create the folder for images for example /usr/share/ScreenRotationIndicator Copy the icon and notification graphics files to that location (this part is required         unless you alter the graphics variables to your desired location) 
-3. Add an auto start item in your system to execute the following: python ScreenRotatorEnhanced.py
+3. Add an auto start item in your system to execute the following: python3 ScreenRotatorEnhanced.py
 4. Edit the config file and change the device to that of your screen. use xinput --list to Identify it. All other hardware items such as Pens, touchpad and     keybaords are automaticly identified by the script. The script will use regex to determine the hardware id's. Pens and stylus ids will be rescanned prior to the sreen rotation to ensure the correct cordinate transform is applied
 
 Notes:
 I have done alot of recent upgrades and tweaking to this script. It is alot leaner and cleaner than before. Please feel free to use modify this software to your hearts content. 
-happt to have any feedback good and bad.
+happy to have any feedback good and bad.
 
 The icon is from Google's Material Desing icon pack (https://materialdesignicons.com/)
 
 This version includes tablet mode, portrait, lanscape modes and complete automation.
+
+Distirbutions Tested:
+* Ubuntu 20.04
+* Ubuntu 22.04
+
