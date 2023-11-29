@@ -7,10 +7,10 @@ class DevicesClass(object):
        # print ("Test Class" + self.DiscoverTouchScreenName () )
         #self.DiscoverTouchScreenName (screen)
         if (self.screen =="auto"):
-            print ("attempting to discover touch screen name") #debug
+           # print ("attempting to discover touch screen name") #debug
             self.TouchScreenName      = self.DiscoverTouchScreenName (screen)
         else:
-            print ("using passed in value" + screen) #debug
+            #print ("using passed in value" + screen) #debug
             self.TouchScreenName      = screen  # system firendly name as displayed in xinput
         #initialise the attributes of the device class
         
@@ -37,10 +37,10 @@ class DevicesClass(object):
             cmdpipe = subprocess.Popen("xinput --list | grep 'Stylus' ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             result = cmdpipe.stdout.readline()
             result = result.decode()
-            print(result) # Debug
+            #print(result) # Debug
             value = re.sub('[^A-Za-z0-9: ]+', '', result.join(result.split()[1:]).split(" ",1 )[0])
             #value = re.sub('[^A-Za-z0-9]+', '', re.sub('\:.*$',"",value))
-            print("Discovering screen device name " + value)  #Debug
+            #print("Discovering screen device name " + value)  #Debug
             return value
         else:
             return screen
@@ -59,7 +59,7 @@ class DevicesClass(object):
             self.TouchPadDeviceID =  self.RetreiveDeviceID(result) 
             self.TouchPadSlaveID = self.RetreiveSlaveID(result) 
         # Grab the TouchScreen device Numbers
-        print ("the touch screen name in query is " + self.TouchScreenName)
+        #print ("the touch screen name in query is " + self.TouchScreenName)
         cmdpipe = subprocess.Popen("xinput --list | grep '" + self.TouchScreenName + "' | grep -v 'keyboard'  ", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         result = cmdpipe.stdout.readline()
         if result and (not result.isspace()):

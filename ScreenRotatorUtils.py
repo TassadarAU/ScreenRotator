@@ -7,7 +7,7 @@ gi.require_version('Notify', '0.7')                                             
 from gi.repository import Notify                                                # Notification libary
 from subprocess import call                                                     # Subprocess libary for making system calls
 from gi.repository import Notify, GdkPixbuf                                     # notification libary import
-from DevicesClass import DevicesClass
+from DevicesClass import DevicesClass                                           # Device query class (custom class to centralise service and ui device queries in common object)
 
 class ScreenRotatorUtils(object):
     def __init__(self):
@@ -17,10 +17,11 @@ class ScreenRotatorUtils(object):
          print ("test")
 
     def currentOrientation(self):
+        result = ""
         cmdpipe = subprocess.Popen("xrandr --query --verbose | grep 'primary' | cut -d ' ' -f 6", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        result = cmdpipe.stdout.readline()  
-        result = result.decode()
+        result = cmdpipe.stdout.readline().decode("utf-8")  
         result = re.sub(r'[^a-zA-Z0-9--]', '', result)
+        #print ("test from class" + result)
         return result
     
     def readConfigreturnAttribute(self, attribute):
@@ -35,7 +36,6 @@ class ScreenRotatorUtils(object):
 
     def RotateScreen(self, DevicesList, TargetCordinateMatrix, direction):
         DevicesList.QueryDeviceAddressing()
-        #DevicesList.DebugPrintDeviceIDS()
         #get current screen orientaion
         result = self.currentOrientation()
         if direction != result:
@@ -48,7 +48,6 @@ class ScreenRotatorUtils(object):
                 command = "xinput set-prop " + DevicesList.TouchScreenDeviceID + " 'Coordinate Transformation Matrix' " + TargetCordinateMatrix
                 #print ("this will be the command - " +command ) # DEBUG
                 os.system(command) 
-           # NotificationToasty ("Screen Auto Rotation", "Switching rotating " + direction)
 
     def ReadConfigFile(self, filename):
         lineCount = 0
